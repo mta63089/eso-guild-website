@@ -31,7 +31,7 @@ jobs:
           ls -la public
 
       - name: Deploy to EC2 via SCP
-        uses: appleboy/scp-action@v0.2.0
+        uses: appleboy/scp-action@v1.0.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
