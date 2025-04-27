@@ -24,8 +24,14 @@ jobs:
       - name: Build the project
         run: npm run build
 
+      - name: Verify build output
+        run: |
+          ls -la
+          ls -la .next
+          ls -la public
+
       - name: Deploy to EC2 via SCP
-        uses: appleboy/scp-action@v0.1.4
+        uses: appleboy/scp-action@v0.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
