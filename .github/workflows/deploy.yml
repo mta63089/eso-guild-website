@@ -24,12 +24,6 @@ jobs:
       - name: Build the project
         run: npm run build
 
-      - name: Verify build output
-        run: |
-          ls -la
-          ls -la .next
-          ls -la public
-
       - name: Deploy to EC2 via SCP
         uses: appleboy/scp-action@v1.0.0
         with:
@@ -37,8 +31,9 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           source: |
-            .next
-            public
+            .next/
+            public/
             package.json
             next.config.js
           target: /var/www/eso-guild-website
+          strip_components: 0
