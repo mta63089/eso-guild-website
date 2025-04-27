@@ -38,10 +38,6 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: |
-            .next/
-            public/
-            package.json
-            next.config.js
+          source: ".next/,public/,package.json,next.config.js"
           target: /var/www/eso-guild-website
           strip_components: 0
