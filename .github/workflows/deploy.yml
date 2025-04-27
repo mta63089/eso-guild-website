@@ -24,14 +24,6 @@ jobs:
       - name: Build the project
         run: npm run build
 
-      - name: Confirm Build Output
-        run: |
-          ls -la
-          ls -la .next
-          ls -la public
-          test -d .next || (echo ".next folder missing" && exit 1)
-          test -d public || (echo "public folder missing" && exit 1)
-
       - name: Deploy to EC2 via SCP
         uses: appleboy/scp-action@v1.0.0
         with:
@@ -41,3 +33,13 @@ jobs:
           source: ".next/,public/,package.json,next.config.js"
           target: /var/www/eso-guild-website
           strip_components: 0
+
+      - name: Restart PM2 on EC2
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /var/www/eso-guild-website
+            pm2 restart eso-guild
