@@ -1,10 +1,18 @@
 export const siteConfig = {
-  name: "ESO Guild Website",
+  name: "GuildForge",
   url: "https://eso-guild-website.mta630.com",
   ogImage: "https://eso-guild-website.mta630.com/og.jpg",
   description:
     "An example website created by demolisheddub (mta630) for Elder Scrolls Online guilds.",
   links: {},
+  nav: [
+    { name: "Home", href: "/" },
+    { name: "Dashboard", href: "/dashboard" },
+    { name: "Projects", href: "/projects" },
+    { name: "Team", href: "/team" },
+    { name: "Calendar", href: "/calendar" },
+    { name: "Documents", href: "/documents" },
+  ],
 };
 
 export type SiteConfig = typeof siteConfig;

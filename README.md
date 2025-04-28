@@ -1,36 +1,135 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📜 ESO Guild Website
 
-## Getting Started
+Welcome to the **ESO Guild Website** project!  
+This site serves as a portal for an Elder Scrolls Online guild, featuring:
 
-First, run the development server:
+- 🎮 Member accounts (Discord OAuth login)
+- 📸 Media upload (user-specific screenshot galleries)
+- 📢 Announcements and blog posts (admin managed)
+- 🛡️ Admin dashboard (rank management, donations, attendance, vacation tracking)
+- 🎣 Dynamic event tracking (live leaderboards, prize pools, countdowns)
+- 🚀 Full CI/CD deployment pipeline
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## ✨ Tech Stack
+
+| Layer           | Technology                                            |
+| :-------------- | :---------------------------------------------------- |
+| Frontend        | [Next.js 15](https://nextjs.org/) (TypeScript)        |
+| Styling         | [TailwindCSS](https://tailwindcss.com/)               |
+| Hosting         | [AWS EC2](https://aws.amazon.com/ec2/) (Ubuntu 24.04) |
+| Web Server      | Apache 2.4 with SSL (Let's Encrypt)                   |
+| Deployment      | GitHub Actions CI/CD                                  |
+| Process Manager | PM2                                                   |
+| Authentication  | Discord OAuth 2.0                                     |
+
+---
+
+## 🚀 Deployment Pipeline
+
+- **Build** and **test** on GitHub Actions (Node.js 22)
+- **Deploy artifacts** (prebuilt `.next/`, `public/`, etc.) to EC2 via SCP
+- **Restart PM2 app** (`eso-guild`) automatically via SSH
+- **Zero downtime** deployments
+- **No building on the server** — production-optimized!
+
+---
+
+## 📂 Project Structure
+
+```plaintext
+/
+├── app/              # Next.js app directory (routes, layouts)
+├── components/       # Reusable React components
+├── config/           # Application configuration
+├── hooks/            # Custom React hooks
+├── lib/              # Utility libraries
+├── public/           # Static assets (images, icons)
+├── .next/            # Next.js build output (generated)
+├── package.json      # Project dependencies and scripts
+├── next.config.ts    # Next.js configuration
+└── tailwind.config.ts# TailwindCSS configuration
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## ⚙️ Local Development
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Clone the repo:**
 
-## Learn More
+   ```bash
+   git clone https://github.com/mta63089/eso-guild-website.git
+   cd eso-guild-website
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. **Install dependencies:**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   ```bash
+   npm install
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+3. **Run the development server:**
 
-## Deploy on Vercel
+   ```bash
+   npm run dev
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+4. Visit [http://localhost:3000](http://localhost:3000) in your browser!
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 🛡️ Production Deployment
+
+| Action              | Command         |
+| :------------------ | :-------------- |
+| Build optimized app | `npm run build` |
+| Start server        | `npm run start` |
+
+**Note:**  
+On production (EC2), only the built `.next/` folder and necessary files are uploaded.  
+No builds are performed on the server to conserve CPU and RAM.
+
+---
+
+## 📜 License
+
+This project is open-source and available under the [MIT License](LICENSE).
+
+---
+
+## 🏆 Special Thanks
+
+- ESO community and players!
+- The open-source maintainers behind Next.js, TailwindCSS, shadcn, Radix, and openai.
+
+---
+
+## 📢 Contributing
+
+Pull requests are welcome!  
+For major changes, please open an issue first to discuss what you would like to change.
+
+---
+
+## 🎯 Current Status
+
+✅ Basic site skeleton deployed  
+✅ Full SSL/HTTPS setup  
+✅ GitHub Actions CI/CD live  
+✅ Apache reverse proxy working  
+🚀 **Phase 2** features under active development!
+
+---
+
+## 📷 Example Screenshot
+
+(Coming soon — once we design the homepage!)
+
+---
+
+## 📋 GitHub Actions Badge
+
+```markdown
+![Deploy](https://github.com/your-username/eso-guild-website/actions/workflows/deploy.yml/badge.svg)
+```
