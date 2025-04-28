@@ -1,6 +1,5 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -14,12 +13,12 @@ import { Input } from "@/components/ui/input";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Bell, Menu, Search, User } from "lucide-react";
+import { Bell, Menu, Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import * as React from "react";
-import AuthButtons from "./auth-buttons";
 import { ModeSwitcher } from "./mode-switcher";
+import { UserMenu } from "./user-menu";
 
 export function SiteHeader() {
   const [isScrolled, setIsScrolled] = React.useState(false);
@@ -118,35 +117,7 @@ export function SiteHeader() {
                 <DropdownMenuItem>3 new team members joined</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Avatar>
-                    <AvatarImage src="/placeholder-avatar.jpg" alt="User" />
-                    <AvatarFallback>
-                      <User />
-                    </AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>
-                  <AuthButtons />
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Link href="">Profile</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Link href="">Settings</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Link href="">Login</Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
+            <UserMenu />
             <Button variant="ghost" size="icon" className="md:hidden">
               <Menu className="size-5" />
             </Button>
