@@ -1,25 +1,13 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import Image from "next/image";
+import { FeatureList } from "@/components/feature-list";
+import { Hero } from "@/components/hero";
+import { LinkHub } from "@/components/link-hub";
 
 export default function HomePage() {
   return (
     <div className="flex min-h-screen flex-col items-center">
-      <div className="flex-col bg-foreground text-background border rounded-2xl p-4">
-        <h1 className="font-extrabold text-7xl">Home</h1>
-      </div>
-      <Card className="relative mt-12 w-2/3 flex-1 border-4 border-black">
-        <Image src="/background-1.png" alt="Background Image" fill={true} />
-      </Card>
-
-      <Card className="mt-12">
-        <CardHeader>
-          <CardTitle>Welcome</CardTitle>
-        </CardHeader>
-        <CardContent>
-          This is the main landing page of the application. We are currently
-          under construction. Check back later for updates!
-        </CardContent>
-      </Card>
+      <Hero />
+      <FeatureList />
+      <LinkHub />
     </div>
   );
 }
