@@ -6,132 +6,131 @@ import { RadialProgress } from "@/components/ui/progress";
 import { CloudUpload } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
-const apiKey = process.env.NEXT_PUBLIC_API_KEY;
-const uploadPreset = process.env.NEXT_PUBLIC_UPLOAD_PRESET;
+interface ImageUploadProps {
+  image: File | null;
+  setImage: (file: File | null) => void;
+  uploadedUrl?: string;
+  setUploadedUrl?: (url: string | null) => void;
+}
 
-// interface ImageUploadProps extends React.ComponentProps<"div"> {
-//   onUploadComplete?: (url: string) => void;
-// }
+export function ImageUpload({
+  image,
+  setImage,
+  uploadedUrl,
+  setUploadedUrl,
+}: ImageUploadProps) {
+  const [loading, setLoading] = useState(false);
 
-function ImageUpload() {
-  const [loading, setLoading] = useState<boolean>(false);
-  //   const [progress, setProgress] = useState<number>(0);
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [uploadedImagePath, setUploadedImagePath] = useState<string | null>(
-    null
-  );
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) {
+      const file = e.target.files[0];
+      setImage(file);
+      await uploadImage(file);
+    }
+  };
 
-  //   const onUploadProgress = (progressEvent: AxiosProgressEvent) => {
-  //     if (progressEvent.total) {
-  //       const percentage = Math.round(
-  //         (progressEvent.loaded * 100) / progressEvent.total
-  //       );
-  //       setProgress(percentage);
-  //     }
-  //   };
-
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files?.length) {
-      const image = event.target.files[0];
-      if (image) {
-        setSelectedImage(image);
+  const onDrop = useCallback(
+    async (acceptedFiles: File[]) => {
+      if (acceptedFiles.length > 0) {
+        const file = acceptedFiles[0];
+        setImage(file);
+        await uploadImage(file);
       }
-      handleImageUpload(selectedImage!);
-    }
-  };
-
-  const removeSelectedImage = () => {
-    setLoading(false);
-    setUploadedImagePath(null);
-    setSelectedImage(null);
-  };
-
-  const handleImageUpload = async (image: File) => {
-    if (!image) return;
-    setLoading(true);
-
-    const formData = new FormData();
-    formData.append("file", image);
-    formData.append("upload_preset", uploadPreset as string);
-    formData.append("api_key", apiKey as string);
-
-    // try {
-    //   const res = await upload to s3 helper here(formData, onUploadProgress);
-    //   if (res.status === 200) {
-    //     setLoading(false);
-    //     setUploadedImagePath(res.data.url);
-    //     if (onUploadComplete) {
-    //       onUploadComplete(res.data.url);
-    //     }
-    //   }
-    // } catch (error) {
-    //   setLoading(false);
-    //   console.error("Error uploading image:", error);
-    // }
-  };
-
-  const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    if (acceptedFiles.length > 0) {
-      const image = acceptedFiles[0];
-      setSelectedImage(image);
-      handleImageUpload(image);
-    }
-  }, []);
+    },
+    [setImage]
+  );
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     noClick: true,
+    accept: {
+      "image/png": [],
+      "image/jpeg": [],
+    },
   });
+
+  const uploadImage = async (file: File) => {
+    setLoading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/uploads", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error("Upload failed");
+      }
+
+      const { url } = await res.json();
+      if (setUploadedUrl) {
+        setUploadedUrl(url);
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const removeImage = () => {
+    setImage(null);
+    if (setUploadedUrl) {
+      setUploadedUrl(null);
+    }
+    setLoading(false);
+  };
 
   return (
     <div className="space-y-3 h-full">
       <div {...getRootProps()} className="h-full">
         <label
           htmlFor="dropzone-file"
-          className="relative flex flex-col items-center justify-center p-6 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 w-full visually-hidden-focusable h-full"
+          className="relative flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-lg cursor-pointer bg-muted hover:bg-accent w-full visually-hidden-focusable h-full transition"
         >
           {loading && (
             <div className="text-center max-w-md">
               <RadialProgress progress={50} />
-              <p className="text-sm font-semibold">Uploading Picture</p>
-              <p className="text-xs text-gray-400">
-                Do not refresh or perform any other action while the picture is
-                being uploaded
+              <p className="text-sm font-semibold">Uploading Image...</p>
+              <p className="text-xs text-muted-foreground">
+                Please wait, do not refresh.
               </p>
             </div>
           )}
 
-          {!loading && !uploadedImagePath && (
+          {!loading && !uploadedUrl && (
             <div className="text-center">
               <div className="border p-2 rounded-md max-w-min mx-auto">
                 <CloudUpload size="1.6em" />
               </div>
-
-              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                <span className="font-semibold">Drag an image</span>
+              <p className="mt-2 text-sm">
+                <span className="font-semibold">Drag an image</span> here
               </p>
-              <p className="text-xs text-gray-400 dark:text-gray-400">
-                Select a image or drag here to upload directly
+              <p className="text-xs text-muted-foreground">
+                or click to select manually
               </p>
             </div>
           )}
 
-          {uploadedImagePath && !loading && (
+          {uploadedUrl && !loading && (
             <div className="text-center space-y-2">
               <Image
-                width={1000}
-                height={1000}
-                src={uploadedImagePath}
-                className="w-full object-contain max-h-16 opacity-70"
-                alt="uploaded image"
+                src={uploadedUrl}
+                alt="Uploaded image"
+                width={500}
+                height={500}
+                className="rounded-md object-cover max-h-60 mx-auto"
               />
               <div className="space-y-1">
-                <p className="text-sm font-semibold">Image Uploaded</p>
-                <p className="text-xs text-gray-400">
-                  Click here to upload another image
+                <p className="text-sm font-semibold">Image uploaded</p>
+                <p className="text-xs text-muted-foreground">
+                  Click to upload a different one
                 </p>
               </div>
             </div>
@@ -144,31 +143,27 @@ function ImageUpload() {
           accept="image/png, image/jpeg"
           type="file"
           className="hidden"
-          disabled={loading || uploadedImagePath !== null}
+          disabled={loading}
           onChange={handleImageChange}
         />
       </div>
 
-      {!!uploadedImagePath && (
-        <div className="flex items-center justify-between">
+      {!!uploadedUrl && (
+        <div className="flex items-center justify-between text-sm mt-2">
           <Link
-            href={uploadedImagePath}
-            className=" text-gray-500 text-xs hover:underline "
+            href={uploadedUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline"
           >
-            Click here to see uploaded image :D
+            View uploaded image
           </Link>
 
-          <Button
-            onClick={removeSelectedImage}
-            type="button"
-            variant="secondary"
-          >
-            {uploadedImagePath ? "Remove" : "Close"}
+          <Button type="button" variant="secondary" onClick={removeImage}>
+            Remove
           </Button>
         </div>
       )}
     </div>
   );
 }
-
-export default ImageUpload;
