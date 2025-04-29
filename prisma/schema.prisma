@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -9,23 +10,22 @@ datasource db {
 }
 
 model Post {
-  id          String      @id @default(cuid())
+  id          String          @id @default(cuid())
   title       String
   preview     String
   content     String
-  author      String
-  type        PostType    @default(BLOG)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
   imageUrl    String
-  categories  PostCategory[]
+  type        PostType
+  createdAt   DateTime         @default(now())
+  authorId    String
+  categories  PostCategory[]   // <- Notice: array of PostCategory not Category directly
 }
 
 model Category {
-  id          String      @id @default(cuid())
-  name        String      @unique
-  createdAt   DateTime    @default(now())
-  posts       PostCategory[]
+  id          String          @id @default(cuid())
+  name        String          @unique
+  createdAt   DateTime        @default(now())
+  posts       PostCategory[]   
 }
 
 model PostCategory {

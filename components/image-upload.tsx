@@ -10,47 +10,12 @@ import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
 interface ImageUploadProps {
-  image: File | null;
-  setImage: (file: File | null) => void;
-  uploadedUrl?: string;
-  setUploadedUrl?: (url: string | null) => void;
+  value?: string; // This is the uploaded image URL (or undefined)
+  onChange: (url: string | null) => void; // Handles setting the new image URL
 }
 
-export function ImageUpload({
-  image,
-  setImage,
-  uploadedUrl,
-  setUploadedUrl,
-}: ImageUploadProps) {
+export function ImageUpload({ value, onChange }: ImageUploadProps) {
   const [loading, setLoading] = useState(false);
-
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) {
-      const file = e.target.files[0];
-      setImage(file);
-      await uploadImage(file);
-    }
-  };
-
-  const onDrop = useCallback(
-    async (acceptedFiles: File[]) => {
-      if (acceptedFiles.length > 0) {
-        const file = acceptedFiles[0];
-        setImage(file);
-        await uploadImage(file);
-      }
-    },
-    [setImage]
-  );
-
-  const { getRootProps, getInputProps } = useDropzone({
-    onDrop,
-    noClick: true,
-    accept: {
-      "image/png": [],
-      "image/jpeg": [],
-    },
-  });
 
   const uploadImage = async (file: File) => {
     setLoading(true);
@@ -69,9 +34,7 @@ export function ImageUpload({
       }
 
       const { url } = await res.json();
-      if (setUploadedUrl) {
-        setUploadedUrl(url);
-      }
+      onChange(url);
     } catch (error) {
       console.error("Upload error:", error);
     } finally {
@@ -79,11 +42,56 @@ export function ImageUpload({
     }
   };
 
-  const removeImage = () => {
-    setImage(null);
-    if (setUploadedUrl) {
-      setUploadedUrl(null);
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) {
+      const file = e.target.files[0];
+      await uploadImage(file);
     }
+  };
+
+  const onDrop = useCallback(
+    async (acceptedFiles: File[]) => {
+      if (acceptedFiles.length > 0) {
+        const file = acceptedFiles[0];
+
+        try {
+          setLoading(true);
+
+          const formData = new FormData();
+          formData.append("file", file);
+
+          const res = await fetch("/api/uploads", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!res.ok) {
+            throw new Error("Upload failed");
+          }
+
+          const { url } = await res.json();
+          onChange(url);
+        } catch (error) {
+          console.error("Upload error:", error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    },
+    [onChange]
+  );
+
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    noClick: true,
+    accept: {
+      "image/png": [],
+      "image/jpeg": [],
+    },
+  });
+
+  const removeImage = () => {
+    onChange(null);
     setLoading(false);
   };
 
@@ -104,7 +112,7 @@ export function ImageUpload({
             </div>
           )}
 
-          {!loading && !uploadedUrl && (
+          {!loading && !value && (
             <div className="text-center">
               <div className="border p-2 rounded-md max-w-min mx-auto">
                 <CloudUpload size="1.6em" />
@@ -118,10 +126,10 @@ export function ImageUpload({
             </div>
           )}
 
-          {uploadedUrl && !loading && (
+          {value && !loading && (
             <div className="text-center space-y-2">
               <Image
-                src={uploadedUrl}
+                src={value}
                 alt="Uploaded image"
                 width={500}
                 height={500}
@@ -148,10 +156,10 @@ export function ImageUpload({
         />
       </div>
 
-      {!!uploadedUrl && (
+      {!!value && (
         <div className="flex items-center justify-between text-sm mt-2">
           <Link
-            href={uploadedUrl}
+            href={value}
             target="_blank"
             rel="noopener noreferrer"
             className="text-primary hover:underline"

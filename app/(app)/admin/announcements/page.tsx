@@ -1,5 +1,5 @@
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { AnnouncementForm } from "@/components/announcement-form";
+import { PostForm } from "@/components/post-form";
 import { isAdmin } from "@/lib/auth/admin";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
@@ -14,7 +14,7 @@ export default async function AdminAnnouncementsPage() {
 
   return (
     <>
-      <AnnouncementForm />
+      <PostForm type="ANNOUNCEMENT" />
     </>
   );
 }
