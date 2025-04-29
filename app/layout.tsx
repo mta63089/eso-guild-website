@@ -5,10 +5,10 @@ import { Toaster } from "@/components/ui/sonner";
 import { META_THEME_COLORS, siteConfig } from "@/config/site";
 import { fontMono, fontSans } from "@/lib/fonts";
 import { cn } from "@/lib/utils";
+import "@/styles/globals.css";
 import type { Metadata, Viewport } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]/route";
-import "./globals.css";
 
 export const metadata: Metadata = {
   title: {

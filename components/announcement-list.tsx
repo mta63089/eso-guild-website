@@ -7,6 +7,7 @@ export interface Announcement {
   content: string;
   author: string;
   createdAt: string;
+  categories: Array<string>;
 }
 
 export default function AnnouncementList({
@@ -57,7 +58,7 @@ export default function AnnouncementList({
                 >
                   <div className="aspect-video overflow-hidden rounded-lg shadow-lg">
                     <Image
-                      src={announcement.image}
+                      src={"/placeholder.png"}
                       alt={`${announcement.title} thumbnail`}
                       width={1280}
                       height={720}

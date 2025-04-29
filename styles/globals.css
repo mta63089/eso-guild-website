@@ -1,5 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "./typography.css";
+@plugin "tailwindcss-motion";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -160,5 +162,33 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@theme {
+  --animate-shine: "shine 3s ease-out infinite";
+  --animate-gradient-flow: "gradientFlow 10s ease 0s infinite normal none running";
+
+  @keyframes shine {
+    0% {
+      background-position: 200% 0;
+    }
+    25% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+  @keyframes gradientFlow {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
   }
 }

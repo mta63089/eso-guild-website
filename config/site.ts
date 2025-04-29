@@ -12,6 +12,7 @@ export const siteConfig = {
     { name: "Team", href: "/team" },
     { name: "Calendar", href: "/calendar" },
     { name: "Documents", href: "/documents" },
+    { name: "Single Post", href: "/post" },
   ],
 };
 
