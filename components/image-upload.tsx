@@ -8,6 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
+import { Label } from "./ui/label";
 
 interface ImageUploadProps {
   value?: string; // This is the uploaded image URL (or undefined)
@@ -98,7 +99,16 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
   return (
     <div className="space-y-3 h-full">
       <div {...getRootProps()} className="h-full">
-        <label
+        <Input
+          {...getInputProps()}
+          id="dropzone-file"
+          accept="image/png, image/jpeg"
+          type="file"
+          className="hidden"
+          disabled={loading}
+          onChange={handleImageChange}
+        />
+        <Label
           htmlFor="dropzone-file"
           className="relative flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-lg cursor-pointer bg-muted hover:bg-accent w-full visually-hidden-focusable h-full transition"
         >
@@ -133,7 +143,7 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
                 alt="Uploaded image"
                 width={500}
                 height={500}
-                className="rounded-md object-cover max-h-60 mx-auto"
+                className="rounded-md object-cover max-h-60 w-auto mx-auto"
               />
               <div className="space-y-1">
                 <p className="text-sm font-semibold">Image uploaded</p>
@@ -143,17 +153,7 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
               </div>
             </div>
           )}
-        </label>
-
-        <Input
-          {...getInputProps()}
-          id="dropzone-file"
-          accept="image/png, image/jpeg"
-          type="file"
-          className="hidden"
-          disabled={loading}
-          onChange={handleImageChange}
-        />
+        </Label>
       </div>
 
       {!!value && (

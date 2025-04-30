@@ -2,26 +2,47 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  const categories = await prisma.category.findMany({
-    orderBy: { name: "asc" },
-  });
-  return NextResponse.json(categories);
+  try {
+    const categories = await prisma.category.findMany({
+      orderBy: { name: "asc" },
+    });
+
+    return NextResponse.json(categories);
+  } catch (error) {
+    console.error("[CATEGORY_GET_ERROR]", error);
+    return NextResponse.json(
+      { error: "Failed to fetch categories" },
+      { status: 500 }
+    );
+  }
 }
 
 export async function POST(req: Request) {
-  const { name } = await req.json();
-
-  if (!name) {
-    return NextResponse.json({ error: "Name is required" }, { status: 400 });
-  }
-
   try {
-    const newCategory = await prisma.category.create({
+    const { name } = await req.json();
+
+    if (!name || typeof name !== "string") {
+      return NextResponse.json(
+        { error: "Invalid category name" },
+        { status: 400 }
+      );
+    }
+
+    const existing = await prisma.category.findUnique({
+      where: { name },
+    });
+
+    if (existing) {
+      return NextResponse.json(existing);
+    }
+
+    const category = await prisma.category.create({
       data: { name },
     });
-    return NextResponse.json(newCategory);
+
+    return NextResponse.json(category, { status: 201 });
   } catch (error) {
-    console.error("Failed to create category:", error);
+    console.error("[CATEGORY_POST_ERROR]", error);
     return NextResponse.json(
       { error: "Failed to create category" },
       { status: 500 }

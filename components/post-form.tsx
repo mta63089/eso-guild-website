@@ -23,6 +23,11 @@ interface PostFormProps {
   type: "ANNOUNCEMENT" | "BLOG" | "GUIDE" | "SHOWCASE" | "EVENT";
 }
 
+const optionSchema = z.object({
+  label: z.string(),
+  value: z.string(),
+  disable: z.boolean().optional(),
+});
 const formSchema = z.object({
   title: z
     .string({ required_error: "Please give your post a Title" })
@@ -35,7 +40,7 @@ const formSchema = z.object({
     .min(120, { message: "Content must be at least 120 characters" }),
   imageUrl: z.string({ required_error: "Please upload an image" }),
   categories: z
-    .array(z.string())
+    .array(optionSchema)
     .min(1, { message: "Please select at least one category" }),
 });
 
@@ -45,10 +50,10 @@ export function PostForm({ type }: PostFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      preview: "",
-      content: "",
-      imageUrl: "",
+      title: undefined,
+      preview: undefined,
+      content: undefined,
+      imageUrl: undefined,
       categories: [],
     },
   });
@@ -146,7 +151,11 @@ export function PostForm({ type }: PostFormProps) {
               <FormItem>
                 <FormLabel>Upload Image</FormLabel>
                 <FormControl>
-                  <ImageUpload value={field.value} onChange={field.onChange} />
+                  <ImageUpload
+                    {...field}
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -161,10 +170,7 @@ export function PostForm({ type }: PostFormProps) {
               <FormItem>
                 <FormLabel>Categories</FormLabel>
                 <FormControl>
-                  <CategoryInput
-                    selectedCategories={field.value}
-                    setSelectedCategories={field.onChange}
-                  />
+                  <CategoryInput {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

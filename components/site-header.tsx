@@ -62,6 +62,7 @@ export function SiteHeader() {
             <div className="relative hidden md:block shadow-2xs">
               <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
               <Input
+                id="top-nav-search"
                 type="search"
                 placeholder="Search..."
                 className="w-[200px] pl-8 md:w-[300px]"

@@ -27,7 +27,7 @@ interface GroupOption {
   [key: string]: Option[];
 }
 
-interface MultipleSelectorProps {
+export interface MultipleSelectorProps {
   value?: Option[];
   defaultOptions?: Option[];
   /** manually controlled options */

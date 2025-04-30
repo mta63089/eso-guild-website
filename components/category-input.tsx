@@ -1,68 +1,73 @@
 "use client";
 
-import { MultipleSelector, Option } from "@/components/ui/multiple-selector";
+import {
+  MultipleSelector,
+  MultipleSelectorProps,
+  Option,
+} from "@/components/ui/multiple-selector";
 import { FerrisWheel } from "lucide-react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-interface CategoryInputProps {
-  selectedCategories: string[];
-  setSelectedCategories: (categories: string[]) => void;
-}
+export function CategoryInput({ ...props }: MultipleSelectorProps) {
+  const [options, setOptions] = useState<Option[]>([]);
 
-const options: Option[] = [
-  { label: "Announcement", value: "announcement" },
-  { label: "Blog", value: "blog" },
-  { label: "Guide", value: "guide" },
-];
+  // Fetch all categories once when the component mounts
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch("/api/categories");
 
-const mockSearch = async (value: string): Promise<Option[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const res = options.filter((option) =>
-        option.label.toLowerCase().includes(value.toLowerCase())
-      );
-      resolve(res);
-    }, 500);
-  });
-};
+        if (!res.ok) {
+          throw new Error("Failed to fetch categories");
+        }
 
-export function CategoryInput({
-  selectedCategories,
-  setSelectedCategories,
-}: CategoryInputProps) {
-  const handleChange = (selected: Option[]) => {
-    const selectedValues = selected.map((option) => option.value);
-    setSelectedCategories(selectedValues);
+        const data: { id: string; name: string }[] = await res.json();
+
+        const formattedOptions = data.map((cat) => ({
+          label: cat.name,
+          value: cat.name,
+        }));
+
+        setOptions(formattedOptions);
+      } catch (error) {
+        console.error("[CATEGORY_FETCH_ERROR]", error);
+        toast.error("Failed to load categories");
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  // Simple filter from local options
+  const handleSearch = async (value: string): Promise<Option[]> => {
+    return options.filter((opt) =>
+      opt.label.toLowerCase().includes(value.toLowerCase())
+    );
   };
 
   return (
-    <div className="flex w-full flex-col gap-5">
-      <MultipleSelector
-        maxSelected={5}
-        creatable
-        defaultOptions={options}
-        selectedValues={selectedCategories.map((value) => ({
-          label: value,
-          value: value,
-        }))}
-        onChange={handleChange}
-        onMaxSelected={(maxLimit) => {
-          toast(`You have reached the max of ${maxLimit} categories.`);
-        }}
-        onSearch={async (value) => {
-          const res = await mockSearch(value);
-          return res;
-        }}
-        placeholder="Select or create categories..."
-        loadingIndicator={
-          <FerrisWheel className="motion-preset-fade-sm animate-spin" />
-        }
-        emptyIndicator={
-          <p className="w-full text-center text-muted-foreground text-sm">
-            No results found.
-          </p>
-        }
-      />
-    </div>
+    <MultipleSelector
+      {...props}
+      maxSelected={5}
+      creatable
+      defaultOptions={options}
+      onSearch={handleSearch}
+      // onChange= need some sort of function here or maybe in the form above that will actually
+      // save these categories to our database
+      hidePlaceholderWhenSelected
+      onMaxSelected={(maxLimit) => {
+        toast(`You have reached the max of ${maxLimit} categories.`);
+      }}
+      placeholder="Select or create categories..."
+      loadingIndicator={
+        <FerrisWheel className="motion-preset-fade-sm animate-spin" />
+      }
+      emptyIndicator={
+        <p className="w-full text-center text-muted-foreground text-sm">
+          No results found.
+        </p>
+      }
+    />
   );
 }

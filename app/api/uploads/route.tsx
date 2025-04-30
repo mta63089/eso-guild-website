@@ -1,27 +1,42 @@
-import { convertImageToWebp } from "@/lib/imageOptimizer";
+import { optimizeImage, OptimizeImageOptions } from "@/lib/imageOptimizer";
 import { s3 } from "@/lib/s3";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
+  const formData = await req.formData();
+  const file = formData.get("file") as File;
+
+  if (!file) {
+    return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+  }
+
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+
   try {
-    const formData = await req.formData();
-    const file = formData.get("file") as File;
+    const optimizeOptions: OptimizeImageOptions = {
+      maxWidth: 1500,
+      quality: 80,
+      format: "webp",
+    };
 
-    if (!file) {
-      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
-    }
+    const { buffer: optimizedBuffer } = await optimizeImage(
+      buffer,
+      optimizeOptions
+    );
 
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
-    const optimizedBuffer = await convertImageToWebp(buffer);
-
-    const fileName = `uploads/posts/${randomUUID()}-${file.name.replace(
+    const originalName = `uploads/posts/${randomUUID()}-${file.name.replace(
       /\s/g,
       "_"
     )}`;
+
+    // Making sure that the extension is updated to what we converted the image to
+    const baseName =
+      originalName.substring(0, originalName.lastIndexOf(".")) || originalName;
+    const newExtension = optimizeOptions.format;
+    const fileName = `${baseName}.${newExtension}`;
 
     const command = new PutObjectCommand({
       Bucket: process.env.S3_BUCKET_NAME!,
