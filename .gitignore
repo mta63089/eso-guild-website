@@ -46,3 +46,5 @@ next-env.d.ts
 # webhook/pipeline stuff for CI/CD
 /deploy.sh
 /webhook/
+
+/scripts

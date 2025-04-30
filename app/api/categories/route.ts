@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import slugify from "slugify";
 
 export async function GET() {
   try {
@@ -20,6 +21,7 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const { name } = await req.json();
+    const slug = slugify(name);
 
     if (!name || typeof name !== "string") {
       return NextResponse.json(
@@ -28,16 +30,24 @@ export async function POST(req: Request) {
       );
     }
 
-    const existing = await prisma.category.findUnique({
+    const existingName = await prisma.category.findUnique({
       where: { name },
     });
 
-    if (existing) {
-      return NextResponse.json(existing);
+    if (existingName) {
+      return NextResponse.json(existingName);
+    }
+
+    const existingSlug = await prisma.category.findUnique({
+      where: { slug },
+    });
+
+    if (existingSlug) {
+      return NextResponse.json(existingSlug);
     }
 
     const category = await prisma.category.create({
-      data: { name },
+      data: { name, slug },
     });
 
     return NextResponse.json(category, { status: 201 });
