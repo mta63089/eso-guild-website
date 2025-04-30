@@ -66,7 +66,7 @@ export function PostForm({ type }: PostFormProps) {
         method: "POST",
         body: JSON.stringify({
           ...values,
-          type, // Inject post type here
+          type,
         }),
         headers: {
           "Content-Type": "application/json",

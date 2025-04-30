@@ -9,33 +9,10 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model Post {
-  id          String          @id @default(cuid())
-  title       String
-  preview     String
-  content     String
-  imageUrl    String
-  type        PostType
-  createdAt   DateTime         @default(now())
-  authorId    String
-  categories  PostCategory[]   // <- Notice: array of PostCategory not Category directly
-}
-
-model Category {
-  id          String          @id @default(cuid())
-  name        String          @unique
-  createdAt   DateTime        @default(now())
-  posts       PostCategory[]   
-}
-
-model PostCategory {
-  postId      String
-  categoryId  String
-
-  post        Post     @relation(fields: [postId], references: [id])
-  category    Category @relation(fields: [categoryId], references: [id])
-
-  @@id([postId, categoryId])
+enum UserRole {
+  ADMIN
+  USER
+  MODERATOR
 }
 
 enum PostType {
@@ -44,4 +21,89 @@ enum PostType {
   GUIDE
   SHOWCASE
   EVENT
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  avatarUrl     String?
+  bio           String?
+  city          String?
+  country       String?
+  profileViews  Int       @default(0)
+  role          UserRole  @default(USER)
+  discordId     String    @unique
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  posts         Post[]
+  comments      Comment[]
+
+  followers     Follow[]  @relation("Followers")
+  following     Follow[]  @relation("Following")
+}
+
+model Post {
+  id          String      @id @default(cuid())
+  slug        String      @unique
+  title       String
+  preview     String
+  content     String
+  imageUrl    String
+  type        PostType
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  views       Int         @default(0)
+  likes       Int         @default(0)
+
+  author      User        @relation(fields: [authorId], references: [id])
+  authorId    String
+
+  categories  Category[]
+  comments    Comment[]
+
+  @@index([createdAt])
+  @@index([type])
+}
+
+model Comment {
+  id          Int       @id @default(autoincrement())
+  content     String
+  likes       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  author      User      @relation(fields: [authorId], references: [id])
+  authorId    String
+
+  post        Post      @relation(fields: [postId], references: [id])
+  postId      String
+
+  @@index([createdAt])
+}
+
+model Follow {
+  id           String   @id @default(cuid())
+
+  follower     User     @relation("Followers", fields: [followerId], references: [id])
+  followerId   String
+
+  following    User     @relation("Following", fields: [followingId], references: [id])
+  followingId  String
+
+  createdAt    DateTime @default(now())
+
+  @@unique([followerId, followingId]) // prevent duplicate follows
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  posts       Post[]
 }
