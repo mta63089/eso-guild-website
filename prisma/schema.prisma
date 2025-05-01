@@ -9,13 +9,13 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-enum UserRole {
+enum user_role {
   ADMIN
   USER
   MODERATOR
 }
 
-enum PostType {
+enum post_type {
   ANNOUNCEMENT
   BLOG
   GUIDE
@@ -23,87 +23,86 @@ enum PostType {
   EVENT
 }
 
-model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  name          String?
-  avatarUrl     String?
-  bio           String?
-  city          String?
-  country       String?
-  profileViews  Int       @default(0)
-  role          UserRole  @default(USER)
-  discordId     String    @unique
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+model user {
+  id             String     @id @default(uuid()) @db.Uuid
+  email          String     @unique
+  name           String?
+  avatar_url     String?
+  bio            String?
+  city           String?
+  country        String?
+  profile_views  Int        @default(0)
+  role           user_role  @default(USER)
+  discord_id     String     @unique
+  created_at     DateTime   @default(now())
+  updated_at     DateTime   @updatedAt
 
-  posts         Post[]
-  comments      Comment[]
-
-  followers     Follow[]  @relation("Followers")
-  following     Follow[]  @relation("Following")
+  posts          post[]
+  comments       comment[]
+  followers      follow[]   @relation("Followers")
+  following      follow[]   @relation("Following")
 }
 
-model Post {
-  id          String      @id @default(cuid())
-  slug        String      @unique
-  title       String
-  preview     String
-  content     String
-  imageUrl    String
-  type        PostType
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  views       Int         @default(0)
-  likes       Int         @default(0)
+model post {
+  id           String      @id @default(uuid()) @db.Uuid
+  slug         String      @unique
+  title        String
+  preview      String
+  content      String
+  image_url    String
+  type         post_type
+  created_at   DateTime    @default(now())
+  updated_at   DateTime    @updatedAt
+  views        Int         @default(0)
+  likes        Int         @default(0)
 
-  author      User        @relation(fields: [authorId], references: [id])
-  authorId    String
+  author       user        @relation(fields: [author_id], references: [id])
+  author_id    String      @db.Uuid
 
-  categories  Category[]
-  comments    Comment[]
+  categories   category[]
+  comments     comment[]
 
-  @@index([createdAt])
+  @@index([created_at])
   @@index([type])
 }
 
-model Comment {
-  id          Int       @id @default(autoincrement())
-  content     String
-  likes       Int       @default(0)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
+model comment {
+  id           Int        @id @default(autoincrement())
+  content      String
+  likes        Int        @default(0)
+  created_at   DateTime   @default(now())
+  updated_at   DateTime   @updatedAt
+  deleted_at   DateTime?
 
-  author      User      @relation(fields: [authorId], references: [id])
-  authorId    String
+  author       user       @relation(fields: [author_id], references: [id])
+  author_id    String     @db.Uuid
 
-  post        Post      @relation(fields: [postId], references: [id])
-  postId      String
+  post         post       @relation(fields: [post_id], references: [id])
+  post_id      String     @db.Uuid
 
-  @@index([createdAt])
+  @@index([created_at])
 }
 
-model Follow {
-  id           String   @id @default(cuid())
+model follow {
+  id             String   @id @default(uuid()) @db.Uuid
 
-  follower     User     @relation("Followers", fields: [followerId], references: [id])
-  followerId   String
+  follower       user     @relation("Followers", fields: [follower_id], references: [id])
+  follower_id    String   @db.Uuid
 
-  following    User     @relation("Following", fields: [followingId], references: [id])
-  followingId  String
+  following      user     @relation("Following", fields: [following_id], references: [id])
+  following_id   String   @db.Uuid
 
-  createdAt    DateTime @default(now())
+  created_at     DateTime @default(now())
 
-  @@unique([followerId, followingId]) // prevent duplicate follows
+  @@unique([follower_id, following_id])
 }
 
-model Category {
-  id          String    @id @default(cuid())
-  name        String    @unique
-  slug        String    @unique
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+model category {
+  id           Int       @id @default(autoincrement())
+  name         String    @unique
+  slug         String    @unique
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
 
-  posts       Post[]
+  posts        post[]
 }
